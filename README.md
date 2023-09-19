@@ -1,29 +1,81 @@
 # Tictactoe
+## Angular tictactoe
+### Board Service
+```js
+import { Injectable } from '@angular/core';
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.2.
+@Injectable({
+  providedIn: 'root'
+})
+export class BoardService {
+  winner: boolean;
+  headline: string;
+  playerTurn: string;
+  player1: string;
+  player2: string;
 
-## Development server
+  constructor() {
+    this.winner = false;
+    this.playerTurn = 'X';
+    this.headline = 'Player\'s turn: ' + this.playerTurn;
+    this.player1 = '';
+    this.player2 = '';
+  }
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+  /**
+   * Determine if a player won the game.
+   */
+  wonGame(board: string[]): boolean {
+    let winnerFound = false;
+    const winCombos = [ [0, 1, 2], [0, 3, 6], [0, 4, 8],
+      [1, 4, 7],
+      [2, 5, 8], [2, 4, 6],
+      [3, 4, 5],
+      [6, 7, 8]];
 
-## Code scaffolding
+    // loop through all the winning combinations
+    winCombos.forEach(combo => {
+      let win = true;
+      // check if player made a move in each board location of the winning combination
+      combo.forEach(pos =>  win = win && (board[pos] === this.playerTurn));
+      if (win) {
+        winnerFound = true;
+      }
+    });
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+    return winnerFound;
+  }
 
-## Build
+  /**
+   *  Alternate player turns.
+   */
+  nextPlayerTurn(): string {
+    return (this.playerTurn === "X" ? "0" : "X");
+  }
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+  /**
+   * Make move on board at a given position.
+   */
+  makeMove(board: string[], pos: number): void {
+    board[pos] = this.playerTurn;
+    if (this.wonGame(board)) {
+      this.winner = true;
+      this.headline = "Player " + (this.playerTurn === "X" ? "X " + this.player1 : "O " + this.player2) + " won the game";
+    } else {
+      this.playerTurn = this.nextPlayerTurn();
+      this.headline = 'Player\'s turn: ' + (this.playerTurn === "X" ? "X " + this.player1 : "O " + this.player2);
+    }
+  }
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
-# angular_tic_tac_toe
-# angular_tic_tac_toe
+  /**
+   * Register tictactoe board players.
+   */
+  registerPlayers(pName1: string, pName2: string): string {
+    this.player1 = "(" + pName1 + ")";
+    this.player2 = "(" + pName2 + ")";
+    this.headline = 'Player\'s turn: ' + (this.playerTurn === "X" ? "X " + this.player1 : "O " + this.player2);
+    return "Registered " + pName1 +  " and " + pName2;
+  }
+}
+```
+### Register
